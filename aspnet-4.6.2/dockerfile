@@ -1,8 +1,11 @@
 FROM microsoft/dotnet-framework:4.6.2
-RUN powershell -Command Add-WindowsFeature Web-Server & \
-    powershell -Command Add-WindowsFeature Web-Asp-Net & \
-    %windir%\System32\inetsrv\appcmd set apppool /apppool.name:DefaultAppPool /managedRuntimeVersion:v2.0 & \
-    powershell -Command Remove-Item -Recurse C:\inetpub\wwwroot\*
+
+SHELL ["powershell", "-Command", "$ErrorActionPreference = 'Stop'; $ProgressPreference = 'SilentlyContinue';"]
+
+RUN Add-WindowsFeature Web-Server; \
+    Add-WindowsFeature NET-Framework-45-ASPNET; \
+    Add-WindowsFeature Web-Asp-Net45; \
+    Remove-Item -Recurse C:\inetpub\wwwroot\*
 
 RUN mkdir c:\shared
 RUN mkdir c:\shared\content
