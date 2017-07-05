@@ -1,0 +1,15 @@
+FROM microsoft/dotnet-framework:3.5
+RUN powershell -Command Add-WindowsFeature Web-Server & \
+    powershell -Command Add-WindowsFeature Web-Asp-Net & \
+    %windir%\System32\inetsrv\appcmd set apppool /apppool.name:DefaultAppPool /managedRuntimeVersion:v2.0 & \
+    powershell -Command Remove-Item -Recurse C:\inetpub\wwwroot\*
+
+RUN mkdir c:\shared
+RUN mkdir c:\shared\content
+RUN mkdir c:\shared\script
+
+ADD spinner.exe /
+
+EXPOSE 80
+
+ENTRYPOINT "powershell Copy-Item C:\shared\content\* C:\inetpub\wwwroot\ -Recurse & powershell Copy-Item c:\shared\script\script.ps1 c:\script.ps1 & powershell c:\script.ps1 & spinner service w3svc -d"
